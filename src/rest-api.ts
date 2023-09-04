@@ -25,7 +25,7 @@ api.post('/exchanges/:exchangeId/rfq', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'expected rfq' })
   }
 
-  return res.status(500).json({ error: 'fok' })
+  return res.sendStatus(501)
 })
 
 api.post('/exchanges/:exchangeId/order', (req: Request, res: Response) => {
