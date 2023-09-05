@@ -1,12 +1,7 @@
-import { PfiRestClient, DevTools } from '@tbd54566975/tbdex';
+import { RestApi } from './rest-api.js';
 
-const alice = await DevTools.createDid('ion')
-const rfq = await DevTools.createRfq({ sender: alice })
+const api = new RestApi()
 
-const { privateKeyJwk } = alice.keySet.verificationMethodKeys[0]
-await rfq.sign(privateKeyJwk, privateKeyJwk.kid)
+api.submit('rfq', async (_rfq) => {})
 
-console.log(JSON.stringify(rfq, null, 2));
-
-const resp = await PfiRestClient.sendMessage({ message: rfq })
-console.log(JSON.stringify(resp, null, 2));
+api.get('offerings', (ctx, filter) => {})
