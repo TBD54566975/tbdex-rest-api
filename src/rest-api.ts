@@ -38,4 +38,8 @@ export class RestApi {
   get<T extends GetKind>(resourceKind: T, callback: GetCallbacks[T]) {
     this.callbacks[resourceKind] = callback
   }
+
+  listen(port: number | string) {
+    return this.api.listen(port)
+  }
 }
