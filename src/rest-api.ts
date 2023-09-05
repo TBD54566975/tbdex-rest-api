@@ -1,40 +1,11 @@
-import type { Express, Request, Response } from 'express'
-import type { ErrorDetail, MessageKind } from '@tbd54566975/tbdex'
+import type { GetCallback, GetKind, SubmitCallback, SubmitKind } from './types.js'
+import type { Express } from 'express'
 
 import express from 'express'
 import cors from 'cors'
 
-import { Message } from '@tbd54566975/tbdex'
+import { getExchanges, getOfferings, submitOrder, submitClose, submitRfq } from './request-handlers/index.js'
 
-
-// type NewRestApiOptions = {
-//   allowList?: string[]
-//   offeringsApi: OfferingApi
-// }
-
-type RequestContext = {
-  request: Request
-  response: Response
-}
-
-type GetKind = 'exchanges' | 'offerings'
-type SubmitKind = 'rfq' | 'order' | 'close'
-type SubmitCallback<T extends SubmitKind> = (ctx: RequestContext, message: Message<T>) => any
-type GetCallback<T extends GetKind> = (ctx: RequestContext, filter: Filters[T]) => any
-
-type Filters = {
-  'offerings': GetOfferingsFilter
-  'exchanges': GetExchangesFilter
-}
-
-type GetOfferingsFilter = {
-  baseCurrency: string
-  quoteCurrency: string
-}
-
-type GetExchangesFilter = {
-  ids: string[]
-}
 
 export class RestApi {
   getCallbacks: Map<GetKind, GetCallback<GetKind>> = new Map()
@@ -42,63 +13,18 @@ export class RestApi {
   api: Express
 
   constructor() {
-    this.api = express()
-    this.api.use(cors())
-    this.api.use(express.json())
+    const api = express()
 
-    this.api.post('/exchanges/:exchangeId/rfq', async (req: Request, res: Response) => {
-      let message: Message<MessageKind>
+    api.use(cors())
+    api.use(express.json())
 
-      try {
-        message = await Message.parse(req.body)
-      } catch(e) {
-        const errorResponse: ErrorDetail = { detail: e.message }
-        return res.status(400).json({ errors: [errorResponse] })
-      }
+    api.post('/exchanges/:exchangeId/rfq', submitRfq(this.submitCallbacks.get('rfq')))
+    api.post('/exchanges/:exchangeId/order', submitOrder(this.submitCallbacks.get('order')))
+    api.post('/exchanges/:exchangeId/close', submitClose(this.submitCallbacks.get('close')))
+    api.get('/exchanges',getExchanges(this.getCallbacks.get('exchanges')))
+    api.get('/offerings', getOfferings(this.getCallbacks.get('offerings')))
 
-      // TODO: check message.from against allowlist
-
-      if (!message.isRfq()) {
-        const errorResponse: ErrorDetail = { detail: 'expected request body to be a valid rfq' }
-        return res.status(400).json({ errors: [errorResponse] })
-      }
-
-      const rfqCallback = this.submitCallbacks.get('rfq')
-      if (rfqCallback) {
-        let result;
-        try {
-          result = await rfqCallback({ request: req, response: res }, message)
-        } catch(e) {
-          // TODO: handle error lewl
-        }
-
-        // TODO: handle result and return appropriate response
-      }
-
-      // TODO: we need to check if the exchangeId already exists.
-      // TODO: fetch offering based on rfq.offeringId
-      // TODO: validate rfq based on offering using rfq.verifyOfferingRequirements(offering)
-
-      return res.sendStatus(501)
-    })
-
-    this.api.post('/exchanges/:exchangeId/order', (req: Request, res: Response) => {
-      return res.sendStatus(501)
-    })
-    this.api.post('/exchanges/:exchangeId/close', (req: Request, res: Response) => {
-      return res.sendStatus(501)
-    })
-    this.api.get('/exchanges/:exchangeId', (req: Request, res: Response) => {
-      return res.sendStatus(501)
-    })
-    this.api.get('/exchanges', (req: Request, res: Response) => {
-      return res.sendStatus(501)
-    })
-
-    this.api.get('/offerings', (req: Request, res: Response) => {
-      console.log('heyo!');
-      return res.sendStatus(501)
-    })
+    this.api = api
   }
 
   submit<T extends SubmitKind>(messageKind: T, callback: SubmitCallback<T>) {
