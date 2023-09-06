@@ -5,6 +5,7 @@ import express from 'express'
 import cors from 'cors'
 
 import { getExchanges, getOfferings, submitOrder, submitClose, submitRfq } from './request-handlers/index.js'
+import { jsonBodyParser } from './middleware/index.js'
 
 type RequestKind = GetKind | SubmitKind
 type CallbackMap = {
@@ -20,7 +21,7 @@ export class RestApi {
     const api = express()
 
     api.use(cors())
-    api.use(express.json())
+    api.use(jsonBodyParser())
 
     api.post('/exchanges/:exchangeId/rfq', submitRfq(this.callbacks['rfq']))
     api.post('/exchanges/:exchangeId/order', submitOrder(this.callbacks['order']))
