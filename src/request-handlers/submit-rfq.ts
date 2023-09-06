@@ -15,6 +15,9 @@ export function submitRfq(callback: SubmitCallback<'rfq'>): RequestHandler {
     }
 
     // TODO: check message.from against allowlist
+    // TODO: check if the exchangeId already exists.
+    // TODO: fetch offering based on rfq.offeringId
+    // TODO: validate rfq based on offering using rfq.verifyOfferingRequirements(offering)
 
     if (!message.isRfq()) {
       const errorResponse: ErrorDetail = { detail: 'expected request body to be a valid rfq' }
@@ -32,12 +35,6 @@ export function submitRfq(callback: SubmitCallback<'rfq'>): RequestHandler {
     } catch(e) {
       // TODO: handle error lewl
     }
-
-    // TODO: handle result and return appropriate response
-
-    // TODO: we need to check if the exchangeId already exists.
-    // TODO: fetch offering based on rfq.offeringId
-    // TODO: validate rfq based on offering using rfq.verifyOfferingRequirements(offering)
 
     return res.sendStatus(501)
   }
