@@ -1,9 +1,16 @@
 import type { ErrorDetail, MessageKind } from '@tbd54566975/tbdex'
-import type { SubmitCallback, RequestHandler, QuoteApi, OrderApi } from '../types.js'
+import type { SubmitCallback, RequestHandler, ExchangesApi } from '../types.js'
 
 import { Message } from '@tbd54566975/tbdex'
 
-export function submitOrder(callback: SubmitCallback<'order'>, quoteApi: QuoteApi, orderApi: OrderApi): RequestHandler {
+type SubmitOrderOpts = {
+  callback: SubmitCallback<'order'>
+  exchangesApi: ExchangesApi
+}
+
+export function submitOrder(opts: SubmitOrderOpts): RequestHandler {
+  const { callback, exchangesApi } = opts
+
   return async function (req, res) {
     let message: Message<MessageKind>
 
@@ -21,16 +28,9 @@ export function submitOrder(callback: SubmitCallback<'order'>, quoteApi: QuoteAp
 
     // TODO: get most recent message added to exchange. use that to see if order is allowed
     // get the quote that the order is associated with
-    const quote = await quoteApi.getQuote(message.exchangeId)
+    const quote = await exchangesApi.getQuote({ exchangeId: message.exchangeId })
     if(quote == undefined) {
       return res.sendStatus(404)
-    }
-
-    try {
-      await orderApi.createOrder(quote.id)
-    } catch(e) {
-      // if e.type == order already exists
-      return res.sendStatus(409)
     }
 
     if (!callback) {

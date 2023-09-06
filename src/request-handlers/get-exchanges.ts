@@ -1,6 +1,12 @@
-import type { GetCallback, RequestHandler } from '../types.js'
+import type { ExchangesApi, GetCallback, RequestHandler } from '../types.js'
 
-export function getExchanges(_callback: GetCallback<'exchanges'>, exchangeApi: ExchangeApi): RequestHandler {
+type GetExchangesOpts = {
+  callback: GetCallback<'exchanges'>
+  exchangesApi: ExchangesApi
+}
+
+export function getExchanges(opts: GetExchangesOpts): RequestHandler {
+  const { callback, exchangesApi } = opts
   return async function (req, res) {
     // verify token
 
@@ -14,7 +20,7 @@ export function getExchanges(_callback: GetCallback<'exchanges'>, exchangeApi: E
     // call callback
 
     //
-    const exchanges = await exchangeApi.getExchanges(ids)
+    const exchanges = await exchangesApi.getExchanges({ ids })
 
     return res.json(exchanges).status(200).send()
   }

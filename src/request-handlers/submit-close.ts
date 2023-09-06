@@ -1,9 +1,16 @@
 import type { ErrorDetail, MessageKind } from '@tbd54566975/tbdex'
-import type { SubmitCallback, RequestHandler } from '../types.js'
+import type { SubmitCallback, RequestHandler, ExchangesApi } from '../types.js'
 
 import { Message } from '@tbd54566975/tbdex'
 
-export function submitClose(callback: SubmitCallback<'close'>, closeApi: CloseApi): RequestHandler {
+type SubmitCloseOpts = {
+  callback: SubmitCallback<'close'>
+  exchangesApi: ExchangesApi
+}
+
+export function submitClose(opts: SubmitCloseOpts): RequestHandler {
+  const { callback, exchangesApi } = opts
+
   return async function (req, res) {
     let message: Message<MessageKind>
 
@@ -25,14 +32,6 @@ export function submitClose(callback: SubmitCallback<'close'>, closeApi: CloseAp
 
     // TODO: return 404 if exchange not found
     // TODO: return 409 if close is not allowed given the current state of the exchange
-
-    try {
-      await closeApi.createClose()
-    }
-    catch(e) {
-      // if close already exists
-      return res.sendStatus(409)
-    }
 
     if (!callback) {
       // TODO: figure out what to do

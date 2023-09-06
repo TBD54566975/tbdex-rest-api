@@ -1,9 +1,16 @@
-import type { SubmitCallback, RequestHandler, OfferingsApi, QuoteApi, RfqApi } from '../types.js'
+import type { SubmitCallback, RequestHandler, OfferingsApi, ExchangesApi } from '../types.js'
 import type { ErrorDetail, MessageKind } from '@tbd54566975/tbdex'
 
 import { Message } from '@tbd54566975/tbdex'
 
-export function submitRfq(callback: SubmitCallback<'rfq'>, offeringsApi: OfferingsApi, quoteApi: QuoteApi, rfqApi: RfqApi): RequestHandler {
+type SubmitRfqOpts = {
+  callback: SubmitCallback<'rfq'>
+  offeringsApi: OfferingsApi
+  exchangesApi: ExchangesApi
+}
+
+export function submitRfq(options: SubmitRfqOpts): RequestHandler {
+  const { offeringsApi, exchangesApi, callback } = options
   return async function (req, res) {
     let message: Message<MessageKind>
 
@@ -20,25 +27,18 @@ export function submitRfq(callback: SubmitCallback<'rfq'>, offeringsApi: Offerin
     }
 
     // TODO: check message.from against allowlist
-    // TODO: check if the exchangeId already exists.
 
-    // TODO: fetch offering based on rfq.offeringId
+    const rfqExists = !! await exchangesApi.getRfq({ exchangeId: message.id })
+    if (rfqExists) {
+      return res.status(409).json({ errors: [`rfq ${message.id} already exists`] })
+    }
+
     const offering = await offeringsApi.getOffering({ id: message.data.offeringId })
     if (!offering) {
       return res.status(400).json({ errors: [`offering ${message.data.offeringId} does not exist`] })
     }
 
-    // TODO: validate rfq based on offering using rfq.verifyOfferingRequirements(offering)
     message.verifyOfferingRequirements(offering)
-
-    // save rfq to db - should we leave them to do this in the callback?
-    await rfqApi.createRfq(message)
-
-    // generate a quote and save it
-    await quoteApi.createQuote({
-      offering,
-      rfq: message
-    })
 
     if (!callback) {
       // TODO: figure out what to do

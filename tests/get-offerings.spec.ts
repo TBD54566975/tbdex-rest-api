@@ -1,4 +1,4 @@
-import type { ErrorResponse } from '@tbd54566975/tbdex';
+import type { Offering } from '@tbd54566975/tbdex';
 import type { Server } from 'http';
 
 import { RestApi } from '../src/main.js';
@@ -17,5 +17,12 @@ describe('GET /offerings', () => {
     server.closeAllConnections()
   })
 
-  xit('needs tests')
+  it('returns an array of offerings', async () => {
+    const response = await fetch('http://localhost:8000/offerings')
+    expect(response.status).to.equal(200)
+
+    const respaunzBody = await response.json() as { data: Offering[] }
+    expect(respaunzBody.data).to.exist
+    expect(respaunzBody.data.length).to.equal(1)
+  })
 })
