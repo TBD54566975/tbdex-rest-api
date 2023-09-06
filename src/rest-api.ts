@@ -25,7 +25,7 @@ export class RestApi {
     api.post('/exchanges/:exchangeId/rfq', submitRfq(this.callbacks['rfq']))
     api.post('/exchanges/:exchangeId/order', submitOrder(this.callbacks['order']))
     api.post('/exchanges/:exchangeId/close', submitClose(this.callbacks['close']))
-    api.get('/exchanges',getExchanges(this.callbacks['exchanges']))
+    api.get('/exchanges', getExchanges(this.callbacks['exchanges']))
     api.get('/offerings', getOfferings(this.callbacks['offerings']))
 
     this.api = api
