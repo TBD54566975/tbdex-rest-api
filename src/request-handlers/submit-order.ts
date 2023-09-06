@@ -19,7 +19,7 @@ export function submitOrder(callback: SubmitCallback<'order'>): RequestHandler {
       return res.status(400).json({ errors: [errorResponse] })
     }
 
-    // TODO: get most recent message added to exchange. use that to see if close is allowed
+    // TODO: get most recent message added to exchange. use that to see if order is allowed
     // TODO: return 404 if exchange not found
     // TODO: return 409 if order is not allowed given the current state of the exchange
 
