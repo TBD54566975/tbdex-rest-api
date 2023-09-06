@@ -1,6 +1,14 @@
-import { RestApi } from './rest-api.js';
+import { Offering } from '@tbd54566975/tbdex';
+import type { GetOfferingOptions, OfferingsApi } from './main.js';
+import { RestApi } from './main.js';
 
-const api = new RestApi()
+const offeringsApi: OfferingsApi = {
+  getOffering(_opts: GetOfferingOptions): Promise<Offering> {
+    throw new Error('Method not implemented.');
+  }
+}
+
+const api = new RestApi({ offeringsApi })
 
 api.submit('rfq', (ctx, rfq) => {
   console.log(rfq);

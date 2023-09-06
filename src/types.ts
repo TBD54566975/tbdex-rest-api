@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express'
-import type { Message } from '@tbd54566975/tbdex'
+import type { Message, Offering } from '@tbd54566975/tbdex'
 
 export type GetKind = 'exchanges' | 'offerings'
 export type GetCallback<T extends GetKind> = (ctx: RequestContext, filter: Filters[T]) => any
@@ -33,3 +33,10 @@ export type RequestContext = {
 }
 
 export type RequestHandler = (request: Request, response: Response) => any
+
+export type GetOfferingOptions = {
+  id: string
+}
+export interface OfferingsApi {
+  getOffering(opts: GetOfferingOptions): Promise<Offering | undefined>
+}

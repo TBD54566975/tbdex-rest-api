@@ -1,4 +1,13 @@
-import type { GetCallback, GetCallbacks, GetKind, SubmitCallback, SubmitCallbacks, SubmitKind } from './types.js'
+import type {
+  GetCallback,
+  GetCallbacks,
+  GetKind,
+  SubmitCallback,
+  SubmitCallbacks,
+  SubmitKind,
+  OfferingsApi
+} from './types.js'
+
 import type { Express } from 'express'
 
 import express from 'express'
@@ -13,23 +22,30 @@ type CallbackMap = {
     : Kind extends SubmitKind ? SubmitCallback<Kind>
     : never
 }
+
+type NewRestApiOptions = {
+  offeringsApi?: OfferingsApi
+}
 export class RestApi {
   callbacks: CallbackMap = {}
+  offeringsApi: OfferingsApi = { getOffering() { return undefined } }
   api: Express
 
-  constructor() {
+  constructor(opts: NewRestApiOptions = {}) {
     const api = express()
 
     api.use(cors())
     api.use(jsonBodyParser())
 
-    api.post('/exchanges/:exchangeId/rfq', submitRfq(this.callbacks['rfq']))
+    api.post('/exchanges/:exchangeId/rfq', submitRfq(this.callbacks['rfq'], this.offeringsApi))
     api.post('/exchanges/:exchangeId/order', submitOrder(this.callbacks['order']))
     api.post('/exchanges/:exchangeId/close', submitClose(this.callbacks['close']))
     api.get('/exchanges', getExchanges(this.callbacks['exchanges']))
     api.get('/offerings', getOfferings(this.callbacks['offerings']))
 
     this.api = api
+
+    this.offeringsApi = opts.offeringsApi
   }
 
   submit<T extends SubmitKind>(messageKind: T, callback: SubmitCallbacks[T]) {
