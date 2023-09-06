@@ -1,9 +1,9 @@
 import type { ErrorDetail, MessageKind } from '@tbd54566975/tbdex'
-import type { SubmitCallback, RequestHandler } from '../types.js'
+import type { SubmitCallback, RequestHandler, QuoteApi, OrderApi } from '../types.js'
 
 import { Message } from '@tbd54566975/tbdex'
 
-export function submitOrder(callback: SubmitCallback<'order'>): RequestHandler {
+export function submitOrder(callback: SubmitCallback<'order'>, quoteApi: QuoteApi, orderApi: OrderApi): RequestHandler {
   return async function (req, res) {
     let message: Message<MessageKind>
 
@@ -15,13 +15,23 @@ export function submitOrder(callback: SubmitCallback<'order'>): RequestHandler {
     }
 
     if (!message.isOrder()) {
-      const errorResponse: ErrorDetail = { detail: 'expected request body to be a valid rfq' }
+      const errorResponse: ErrorDetail = { detail: 'expected request body to be a valid order' }
       return res.status(400).json({ errors: [errorResponse] })
     }
 
     // TODO: get most recent message added to exchange. use that to see if order is allowed
-    // TODO: return 404 if exchange not found
-    // TODO: return 409 if order is not allowed given the current state of the exchange
+    // get the quote that the order is associated with
+    const quote = await quoteApi.getQuote(message.exchangeId)
+    if(quote == undefined) {
+      return res.sendStatus(404)
+    }
+
+    try {
+      await orderApi.createOrder(quote.id)
+    } catch(e) {
+      // if e.type == order already exists
+      return res.sendStatus(409)
+    }
 
     if (!callback) {
       // TODO: figure out what to do

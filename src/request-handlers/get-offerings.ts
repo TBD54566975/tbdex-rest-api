@@ -1,7 +1,15 @@
-import type { GetCallback, RequestHandler } from '../types.js'
+import type { GetCallback, OfferingsApi, RequestHandler } from '../types.js'
 
-export function getOfferings(_callback: GetCallback<'offerings'>): RequestHandler {
+export function getOfferings(callback: GetCallback<'offerings'>, offeringsApi: OfferingsApi): RequestHandler {
   return async function (req, res) {
-    return res.sendStatus(501)
+    // pass in filter if have
+    const offerings = await offeringsApi.getOfferings()
+
+    if (!callback) {
+      // TODO: figure out what to do
+      return res.sendStatus(200)
+    }
+
+    return res.status(200).json(offerings)
   }
 }

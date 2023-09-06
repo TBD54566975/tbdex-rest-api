@@ -1,9 +1,9 @@
-import type { SubmitCallback, RequestHandler, OfferingsApi } from '../types.js'
+import type { SubmitCallback, RequestHandler, OfferingsApi, QuoteApi, RfqApi } from '../types.js'
 import type { ErrorDetail, MessageKind } from '@tbd54566975/tbdex'
 
 import { Message } from '@tbd54566975/tbdex'
 
-export function submitRfq(callback: SubmitCallback<'rfq'>, offeringsApi: OfferingsApi): RequestHandler {
+export function submitRfq(callback: SubmitCallback<'rfq'>, offeringsApi: OfferingsApi, quoteApi: QuoteApi, rfqApi: RfqApi): RequestHandler {
   return async function (req, res) {
     let message: Message<MessageKind>
 
@@ -30,6 +30,15 @@ export function submitRfq(callback: SubmitCallback<'rfq'>, offeringsApi: Offerin
 
     // TODO: validate rfq based on offering using rfq.verifyOfferingRequirements(offering)
     message.verifyOfferingRequirements(offering)
+
+    // save rfq to db - should we leave them to do this in the callback?
+    await rfqApi.createRfq(message)
+
+    // generate a quote and save it
+    await quoteApi.createQuote({
+      offering,
+      rfq: message
+    })
 
     if (!callback) {
       // TODO: figure out what to do

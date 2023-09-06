@@ -3,7 +3,7 @@ import type { SubmitCallback, RequestHandler } from '../types.js'
 
 import { Message } from '@tbd54566975/tbdex'
 
-export function submitClose(callback: SubmitCallback<'close'>): RequestHandler {
+export function submitClose(callback: SubmitCallback<'close'>, closeApi: CloseApi): RequestHandler {
   return async function (req, res) {
     let message: Message<MessageKind>
 
@@ -15,13 +15,24 @@ export function submitClose(callback: SubmitCallback<'close'>): RequestHandler {
     }
 
     if (!message.isClose()) {
-      const errorResponse: ErrorDetail = { detail: 'expected request body to be a valid rfq' }
+      const errorResponse: ErrorDetail = { detail: 'expected request body to be a valid close' }
       return res.status(400).json({ errors: [errorResponse] })
     }
 
     // TODO: get most recent message added to exchange. use that to see if close is allowed
+    // could be an RFQ or a Quote which is being closed, need to query both
+    // do we allow closes after Order has been submitted?
+
     // TODO: return 404 if exchange not found
     // TODO: return 409 if close is not allowed given the current state of the exchange
+
+    try {
+      await closeApi.createClose()
+    }
+    catch(e) {
+      // if close already exists
+      return res.sendStatus(409)
+    }
 
     if (!callback) {
       // TODO: figure out what to do

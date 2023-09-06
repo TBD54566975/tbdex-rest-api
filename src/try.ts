@@ -1,9 +1,9 @@
 import { Offering } from '@tbd54566975/tbdex';
-import type { GetOfferingOptions, OfferingsApi } from './main.js';
+import type { GetOfferingOpts, OfferingsApi } from './main.js';
 import { RestApi } from './main.js';
 
 const offeringsApi: OfferingsApi = {
-  getOffering(_opts: GetOfferingOptions): Promise<Offering> {
+  getOffering(_opts: GetOfferingOpts): Promise<Offering> {
     throw new Error('Method not implemented.');
   }
 }
