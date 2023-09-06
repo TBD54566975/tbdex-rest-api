@@ -13,6 +13,7 @@ module.exports = {
     es2022 : true,
   },
   ignorePatterns: [
+    'src/fetch.d.ts',
     'dist',
     '**/tests/compiled'
   ],
