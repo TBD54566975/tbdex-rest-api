@@ -1,7 +1,11 @@
 {
-  "name": "@tbdex/rest-api",
+  "name": "@tbd54566975/tbdex-rest-api",
   "type": "module",
   "version": "0.0.1",
+  "module": "./dist/main.js",
+  "types": "./dist/types/main.d.ts",
+  "files": ["./dist", "./src"],
+  "exports": "./dist/main.js",
   "dependencies": {
     "@tbd54566975/tbdex": "0.6.0",
     "@web5/dids": "0.1.9-alpha-20230828-8204a49",
@@ -28,7 +32,6 @@
   "scripts": {
     "build": "npm run clean && tsc",
     "clean": "rimraf dist",
-    "server": "npm run build && node dist/main.js",
     "test": "rimraf tests/compiled && tsc -p tests/tsconfig.json && mocha",
     "try": "npm run build && node dist/try.js"
   }

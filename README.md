@@ -4,12 +4,15 @@
 >
 > This repo is currently under construction 🚧
 
-
+# Installation
+```bash
+npm install @tbd54566975/tbdex-rest-api
+```
 # Usage
 ```typescript
-import { TbdexRestApi } from '@tbdex/rest-api'
+import { RestApi } from '@tbd54566975/tbdex-rest-api'
 
-const api = new TbdexRestApi()
+const api = new RestApi()
 
 api.get('offerings', async (ctx, filter) => { /* write biz logic here */ })
 api.get('exchanges', async (ctx, filter) => { /* write biz logic here */ })
