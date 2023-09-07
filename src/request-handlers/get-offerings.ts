@@ -16,6 +16,6 @@ export function getOfferings(opts: GetOfferingsOpts): RequestHandler {
       await callback({ request, response }, {} as any)
     }
 
-    return response.status(200).json(offerings)
+    return response.status(200).json({ data: offerings })
   }
 }
