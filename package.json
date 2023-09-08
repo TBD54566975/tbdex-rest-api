@@ -8,11 +8,14 @@
   },
   "license": "Apache-2.0",
   "type": "module",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "module": "./dist/main.js",
   "types": "./dist/types/main.d.ts",
   "files": ["./dist", "./src"],
-  "exports": "./dist/main.js",
+  "exports": {
+    "types": "./dist/types/main.d.ts",
+    "import": "./dist/main.js"
+  },
   "dependencies": {
     "@tbd54566975/tbdex": "0.6.0",
     "@web5/dids": "0.1.9-alpha-20230828-8204a49",
