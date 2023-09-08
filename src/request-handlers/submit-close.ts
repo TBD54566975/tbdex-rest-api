@@ -26,25 +26,21 @@ export function submitClose(opts: SubmitCloseOpts): RequestHandler {
       return res.status(400).json({ errors: [errorResponse] })
     }
 
-    // TODO: get most recent message added to exchange. use that to see if close is allowed
-    // could be an RFQ or a Quote which is being closed, need to query both
-    // do we allow closes after Order has been submitted?
+    // TODO: get most recent message added to exchange. use that to see if close is allowed (issue #1)
+    // return 409 if close is not allowed given the current state of the exchange.
 
-    // TODO: return 404 if exchange not found
-    // TODO: return 409 if close is not allowed given the current state of the exchange
+    // TODO: return 404 if exchange not found (issue #2)
 
     if (!callback) {
-      // TODO: figure out what to do
       return res.sendStatus(202)
     }
 
-    let result;
     try {
-      result = await callback({ request: req, response: res }, message)
+      // TODO: figure out what to do with callback result, if anything. (issue #12)
+      const _result = await callback({ request: req, response: res }, message)
+      return res.sendStatus(202)
     } catch(e) {
-      // TODO: handle error lewl
+      // TODO: handle error lewl (issue #3)
     }
-
-    return res.sendStatus(501)
   }
 }

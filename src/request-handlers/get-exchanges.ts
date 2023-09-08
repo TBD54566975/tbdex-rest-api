@@ -1,4 +1,4 @@
-import type { ExchangesApi, GetCallback, RequestHandler } from '../types.js'
+import type { ExchangesApi, GetCallback, GetExchangesFilter, RequestHandler } from '../types.js'
 
 type GetExchangesOpts = {
   callback: GetCallback<'exchanges'>
@@ -7,21 +7,20 @@ type GetExchangesOpts = {
 
 export function getExchanges(opts: GetExchangesOpts): RequestHandler {
   const { callback, exchangesApi } = opts
-  return async function (req, res) {
-    // verify token
+  return async function (request, response) {
+    // TODO: verify authz token (#issue 9)
+
+    const queryParams = request.query as GetExchangesFilter
 
     // check exchanges exist - what to do if some exist but others don't?
-    const ids = req.query.ids as string[]
+    const exchanges = await exchangesApi.getExchanges(queryParams)
 
-    // check requester did == exchange did
+    if (callback) {
+      // TODO: figure out what to do with callback result. should we pass through the exchanges we've fetched
+      //       and allow the callback to modify what's returned? (issue #10)
+      const result = await callback({ request, response }, queryParams)
+    }
 
-    // get exchanges
-
-    // call callback
-
-    //
-    const exchanges = await exchangesApi.getExchanges({ ids })
-
-    return res.json(exchanges).status(200).send()
+    return response.status(200).json({ data: exchanges })
   }
 }

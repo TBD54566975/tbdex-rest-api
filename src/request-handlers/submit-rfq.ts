@@ -41,15 +41,14 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
     message.verifyOfferingRequirements(offering)
 
     if (!callback) {
-      // TODO: figure out what to do
       return res.sendStatus(202)
     }
 
-    let result;
     try {
-      result = await callback({ request: req, response: res }, message)
+      // TODO: figure out what to do with callback result, if anything. (issue #7)
+      const _result = await callback({ request: req, response: res }, message)
     } catch(e) {
-      // TODO: handle error lewl
+      // TODO: handle error lewl (#issue 8)
     }
 
     return res.sendStatus(501)

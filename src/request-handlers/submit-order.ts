@@ -26,25 +26,23 @@ export function submitOrder(opts: SubmitOrderOpts): RequestHandler {
       return res.status(400).json({ errors: [errorResponse] })
     }
 
-    // TODO: get most recent message added to exchange. use that to see if order is allowed
-    // get the quote that the order is associated with
+    // TODO: return 409 if order is not allowed given the current state of the exchange. (#issue 4)
+
     const quote = await exchangesApi.getQuote({ exchangeId: message.exchangeId })
     if(quote == undefined) {
       return res.sendStatus(404)
     }
 
     if (!callback) {
-      // TODO: figure out what to do
       return res.sendStatus(202)
     }
 
-    let result;
     try {
-      result = await callback({ request: req, response: res }, message)
+      // TODO: figure out what to do with callback result, if anything. (#issue 5)
+      const _result = await callback({ request: req, response: res }, message)
+      return res.sendStatus(202)
     } catch(e) {
       // TODO: handle error lewl
     }
-
-    return res.sendStatus(501)
   }
 }
