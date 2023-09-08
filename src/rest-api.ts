@@ -77,7 +77,8 @@ export class RestApi {
     this.callbacks[resourceKind] = callback
   }
 
-  listen(port: number | string) {
-    return this.api.listen(port)
+  listen(port: number | string, callback?: () => void) {
+    // TODO: support hostname and backlog arguments
+    return this.api.listen(port, callback)
   }
 }
