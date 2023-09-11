@@ -1,5 +1,7 @@
 import type { ExchangesApi, GetCallback, GetExchangesFilter, RequestHandler } from '../types.js'
 
+import { PfiRestClient } from '@tbd54566975/tbdex'
+
 type GetExchangesOpts = {
   callback: GetCallback<'exchanges'>
   exchangesApi: ExchangesApi
@@ -9,6 +11,23 @@ export function getExchanges(opts: GetExchangesOpts): RequestHandler {
   const { callback, exchangesApi } = opts
   return async function (request, response) {
     // TODO: verify authz token (#issue 9)
+    const authzHeader = request.headers['authorization']
+    if (!authzHeader) {
+      return response.status(401).json({ errors: [{ detail: 'Authorization header required' }] })
+    }
+
+    const [_, requestToken] = authzHeader.split('Bearer ')
+
+    if (!requestToken) {
+      return response.status(401).json({ errors: [{ detail: 'Malformed Authorization header. Expected: Bearer TOKEN_HERE' }] })
+    }
+
+    let requesterDid
+    try {
+      requesterDid = await PfiRestClient.verify(requestToken)
+    } catch(e) {
+      return response.status(401).json({ errors: [{ detail: 'Malformed Authorization header.' }] })
+    }
 
     const queryParams = request.query as GetExchangesFilter
 
